@@ -1,0 +1,386 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Keyframes définies ici (et non via la config Tailwind) pour garantir leur
+   émission : elles sont référencées par la classe utilitaire .reveal-in en CSS
+   brut, pas par l'utilitaire animate-reveal, que le JIT purgerait sinon. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:root {
+  --canvas: #f7f6f2;
+  --paper: #ffffff;
+  --ink: #0a0a0a;
+  --ink-deep: #050505;
+  --muted: #565656;
+  --line: #d8d8d8;
+  --ghost: #b8b8b8;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--canvas);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Eyebrow / label : capitales très espacées */
+  .label {
+    @apply font-condensed text-xs font-semibold uppercase tracking-label text-muted;
+  }
+
+  /* Conteneur centré aligné sur la grille */
+  .container-hc {
+    @apply mx-auto w-full max-w-container px-gutter;
+  }
+
+  /* Filet horizontal fin */
+  .hairline {
+    @apply border-t border-line;
+  }
+
+  /* Compteur / timecode mono */
+  .timecode {
+    @apply font-mono text-sm tabular-nums tracking-wide2;
+  }
+
+  .contact-map-popup .maplibregl-popup-content {
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+    padding: 18px;
+  }
+
+  .contact-map-popup .maplibregl-popup-tip {
+    border-top-color: var(--ink);
+  }
+}
+
+@layer utilities {
+  /* Repères de viseur (crop marks) aux 4 angles */
+  .viewfinder {
+    position: relative;
+  }
+  .viewfinder::before,
+  .viewfinder::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: var(--ink);
+    border-style: solid;
+    pointer-events: none;
+  }
+  .viewfinder::before {
+    top: 0;
+    left: 0;
+    border-width: 1px 0 0 1px;
+  }
+  .viewfinder::after {
+    bottom: 0;
+    right: 0;
+    border-width: 0 1px 1px 0;
+  }
+
+  /* État initial avant révélation au scroll */
+  .reveal-init {
+    opacity: 0;
+    transform: translateY(18px);
+    will-change: opacity, transform;
+  }
+  .reveal-in {
+    animation: reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Masque le scrollbar (filtres en scroll horizontal mobile) */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Motion « cinéma » — séquences, micro-interactions, ambiance.
+   Tout est neutralisé plus bas via prefers-reduced-motion.
+   ============================================================ */
+
+@keyframes line-up {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes corner-draw {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ghost-slide {
+  from {
+    opacity: 0;
+    transform: translateX(7%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rec-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(360%);
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes slide-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@layer utilities {
+  /* 1 — Séquence d'ouverture du hero (révélation ligne par ligne) */
+  .hero-line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero-line > span {
+    display: block;
+    animation: line-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-corner {
+    animation: corner-draw 0.5s ease both;
+  }
+  .ghost-animate {
+    animation: ghost-slide 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* 11 — Voyant REC qui clignote */
+  .rec-blink {
+    animation: rec-blink 1.6s ease-in-out infinite;
+  }
+
+  /* 6 — Marquee « bande film » */
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+  }
+  .marquee-track {
+    animation: marquee 40s linear infinite;
+  }
+  .marquee-mask:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* 9 — Transition d'entrée de page (template.tsx) */
+  .page-enter {
+    animation: page-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* 10 — Grain argentique + ligne de scan */
+  .film-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 30%;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.22),
+      transparent
+    );
+    animation: scan 7s linear infinite;
+  }
+
+  /* Carrousel d'avis : barre de progression de l'autoplay (playhead) */
+  .slide-progress {
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: slide-progress 6s linear both;
+  }
+
+  /* 8 — Indicateur de progression (filet en haut de page) */
+  .scroll-progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 60;
+    pointer-events: none;
+  }
+}
+
+/* 7 + 8 — Animations pilotées par le scroll (progressive enhancement) */
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: scroll-progress linear both;
+    animation-timeline: scroll(root);
+  }
+  .ghost-parallax {
+    animation: ghost-drift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 120vh;
+  }
+  @keyframes ghost-drift {
+    from {
+      transform: translateY(-4%);
+    }
+    to {
+      transform: translateY(9%);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .rec-blink,
+  .scan-line,
+  .hero-line > span,
+  .hero-corner,
+  .ghost-animate,
+  .page-enter,
+  .ghost-parallax,
+  .slide-progress {
+    animation: none !important;
+  }
+  .hero-line > span {
+    transform: none;
+  }
+  .marquee-mask {
+    overflow-x: auto;
+  }
+  .scroll-progress {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+  }
+}
