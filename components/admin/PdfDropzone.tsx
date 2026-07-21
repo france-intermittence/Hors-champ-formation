@@ -1,27 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
-import { UploadCloud, X } from "lucide-react";
+import { FileText, UploadCloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface CoverImageDropzoneProps {
+interface PdfDropzoneProps {
   value: string;
-  onChange: (url: string) => void;
-  /** Slug/titre courant utilisé pour nommer le fichier au moment du dépôt. */
+  fileName?: string;
+  onChange: (url: string, fileName: string) => void;
   slugHint: string;
-  /** Route d'upload à utiliser (bucket cible différent selon le contenu). */
-  endpoint?: string;
-  hint?: string;
 }
 
-export default function CoverImageDropzone({
-  value,
-  onChange,
-  slugHint,
-  endpoint = "/api/admin/blog/upload-image",
-  hint = "Conversion automatique en .webp, nommée d'après le titre.",
-}: CoverImageDropzoneProps) {
+export default function PdfDropzone({ value, fileName, onChange, slugHint }: PdfDropzoneProps) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +19,7 @@ export default function CoverImageDropzone({
 
   const upload = async (file: File) => {
     if (!slugHint.trim()) {
-      setError("Renseignez d'abord un titre ou un slug avant d'ajouter une image.");
+      setError("Renseignez d'abord un titre ou un slug avant d'ajouter un PDF.");
       return;
     }
     setUploading(true);
@@ -38,12 +28,15 @@ export default function CoverImageDropzone({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("slug", slugHint);
-      const res = await fetch(endpoint, { method: "POST", body: formData });
-      if (!res.ok) throw new Error("upload-failed");
+      const res = await fetch("/api/admin/formations/upload-pdf", { method: "POST", body: formData });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "upload-failed");
+      }
       const data = await res.json();
-      onChange(data.url);
-    } catch {
-      setError("Échec de l'upload de l'image.");
+      onChange(data.url, data.name);
+    } catch (err) {
+      setError(err instanceof Error && err.message !== "upload-failed" ? err.message : "Échec de l'upload du PDF.");
     } finally {
       setUploading(false);
     }
@@ -59,13 +52,19 @@ export default function CoverImageDropzone({
   return (
     <div>
       {value ? (
-        <div className="relative aspect-[21/9] w-full overflow-hidden border border-line bg-canvas">
-          <Image src={value} alt="Aperçu de l'image de couverture" fill className="object-cover" />
+        <div className="flex items-center gap-4 border border-line bg-canvas p-4">
+          <FileText className="h-8 w-8 shrink-0 text-ink" strokeWidth={1.5} aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm text-ink">{fileName || "Programme.pdf"}</p>
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-xs text-muted underline underline-offset-2 hover:text-ink">
+              Ouvrir le PDF
+            </a>
+          </div>
           <button
             type="button"
-            onClick={() => onChange("")}
-            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center border border-ink bg-canvas text-ink transition-colors hover:bg-ink hover:text-canvas"
-            aria-label="Retirer l'image"
+            onClick={() => onChange("", "")}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-canvas"
+            aria-label="Retirer le PDF"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -80,21 +79,20 @@ export default function CoverImageDropzone({
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
           className={cn(
-            "flex aspect-[21/9] w-full cursor-pointer flex-col items-center justify-center gap-3 border border-dashed px-6 text-center transition-colors",
+            "flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-6 text-center transition-colors",
             dragging ? "border-ink bg-canvas" : "border-line bg-canvas/60 hover:border-ink"
           )}
         >
-          <UploadCloud className="h-8 w-8 text-muted" aria-hidden />
+          <UploadCloud className="h-6 w-6 text-muted" aria-hidden />
           <p className="font-condensed text-sm font-semibold uppercase tracking-wide2 text-ink">
-            {uploading ? "Envoi en cours..." : "Glissez-déposez une image, ou cliquez"}
+            {uploading ? "Envoi en cours..." : "Glissez-déposez le PDF du programme, ou cliquez"}
           </p>
-          <p className="text-xs text-muted">{hint}</p>
         </div>
       )}
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="application/pdf"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];

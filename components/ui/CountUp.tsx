@@ -60,8 +60,11 @@ export default function CountUp({
   }, [target, suffix, durationMs]);
 
   return (
-    <span ref={ref} className={className} aria-label={value}>
-      {display}
-    </span>
+    <>
+      <span ref={ref} className={className} aria-hidden="true">
+        {display}
+      </span>
+      <span className="sr-only">{value}</span>
+    </>
   );
 }

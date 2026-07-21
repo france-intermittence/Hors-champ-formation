@@ -10,7 +10,7 @@ interface TestimonialCardProps {
 
 function Rating({ value, onDark }: { value: number; onDark?: boolean }) {
   return (
-    <div className="flex gap-1" aria-label={`Note : ${value} sur 5`}>
+    <div className="flex gap-1" role="img" aria-label={`Note : ${value} sur 5`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}

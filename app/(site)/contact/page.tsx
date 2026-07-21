@@ -11,6 +11,7 @@ import StickyMobileCTA from "@/components/layout/StickyMobileCTA";
 import LazyContactMap from "@/components/ui/LazyContactMap";
 import { site } from "@/data/navigation";
 import { contactFaq } from "@/data/faq";
+import { getAllFormations } from "@/data/formations";
 import JsonLd from "@/components/ui/JsonLd";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import type { Step } from "@/types";
@@ -30,7 +31,8 @@ const process: Step[] = [
   { title: "Formation", description: "Vous rejoignez le studio à Paris et entrez dans la pratique." },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const formations = await getAllFormations();
   const coordinates = [
     {
       icon: MapPin,
@@ -97,7 +99,7 @@ export default function ContactPage() {
               title={<>Votre demande</>}
             />
             <div className="mt-8">
-              <ContactForm />
+              <ContactForm formations={formations} />
             </div>
           </div>
         </div>

@@ -59,6 +59,12 @@ export interface Formation {
   evaluation: string[];
   /** Chemin d'image optionnel (sinon fond gris typographique) */
   image?: string;
+  /** Texte alternatif de l'image de couverture (accessibilité + SEO). */
+  imageAlt?: string;
+  /** URL du PDF de programme téléchargeable (bucket Supabase). */
+  programPdfUrl?: string;
+  /** Nom de fichier original du PDF, affiché dans l'admin. */
+  programPdfName?: string;
 }
 
 export interface Testimonial {

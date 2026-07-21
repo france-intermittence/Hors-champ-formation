@@ -88,6 +88,7 @@ export default function TestimonialCarousel({
         <div key={index} className="reveal-in">
           <div
             className="flex justify-center gap-1"
+            role="img"
             aria-label={`Note : ${current.rating} sur 5`}
           >
             {Array.from({ length: 5 }).map((_, i) => (

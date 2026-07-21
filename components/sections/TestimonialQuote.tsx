@@ -15,7 +15,7 @@ export default function TestimonialQuote({
 }: TestimonialQuoteProps) {
   return (
     <figure className="mx-auto max-w-4xl text-center">
-      <div className="flex justify-center gap-1" aria-label={`Note : ${testimonial.rating} sur 5`}>
+      <div className="flex justify-center gap-1" role="img" aria-label={`Note : ${testimonial.rating} sur 5`}>
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
             key={i}

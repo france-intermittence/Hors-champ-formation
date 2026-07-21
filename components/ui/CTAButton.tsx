@@ -18,6 +18,8 @@ interface CTAButtonProps {
   onDark?: boolean;
   /** Identifiant de tracking analytics (attribut data-track). */
   dataTrack?: string;
+  /** Ouvre le lien dans un nouvel onglet (ex. téléchargement d'un PDF externe). */
+  target?: string;
 }
 
 const base =
@@ -59,6 +61,7 @@ export default function CTAButton({
   className,
   onDark = false,
   dataTrack,
+  target,
 }: CTAButtonProps) {
   const showArrow = arrow ?? variant === "primary";
   const rest = variantClasses(variant, onDark);
@@ -78,7 +81,13 @@ export default function CTAButton({
 
   if (href) {
     return (
-      <Link href={href} className={classes} data-track={dataTrack}>
+      <Link
+        href={href}
+        className={classes}
+        data-track={dataTrack}
+        target={target}
+        rel={target === "_blank" ? "noopener noreferrer" : undefined}
+      >
         {content}
       </Link>
     );

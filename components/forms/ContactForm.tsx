@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
-import { formations } from "@/data/formations";
 
 const profiles = [
   "Créateur de contenu",
@@ -19,7 +18,11 @@ const fieldClass =
 const labelClass =
   "mb-2 block font-condensed text-xs font-semibold uppercase tracking-wide2 text-muted";
 
-export default function ContactForm() {
+interface ContactFormProps {
+  formations: { slug: string; title: string }[];
+}
+
+export default function ContactForm({ formations }: ContactFormProps) {
   const [sent, setSent] = useState(false);
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -1,4 +1,5 @@
 import type { Formation, FormationCategory } from "@/types";
+import { supabase } from "@/lib/supabase";
 
 /**
  * Catalogue des formations — reflète l'offre réelle de Hors Champ Formation
@@ -301,19 +302,90 @@ export const formationCategories: FormationCategory[] = [
   "Module d'entrée",
 ];
 
-export function getFormationBySlug(slug: string): Formation | undefined {
+// Map database row back to camelCase Formation type
+export function mapDbFormation(row: any): Formation {
+  return {
+    slug: row.slug,
+    title: row.title,
+    category: row.category,
+    tag: row.tag || undefined,
+    excerpt: row.excerpt,
+    subtitle: row.subtitle,
+    intro: row.intro,
+    duration: row.duration,
+    durationDays: row.duration_days,
+    price: row.price ?? undefined,
+    level: row.level,
+    format: row.format,
+    location: row.location,
+    place: row.place || undefined,
+    rhythm: row.rhythm,
+    accessDelay: row.access_delay,
+    accessibility: row.accessibility,
+    featured: row.featured,
+    objectives: row.objectives,
+    content: row.content,
+    methods: row.methods,
+    evaluation: row.evaluation,
+    image: row.image || undefined,
+    imageAlt: row.image_alt || undefined,
+    programPdfUrl: row.program_pdf_url || undefined,
+    programPdfName: row.program_pdf_name || undefined,
+  };
+}
+
+export async function getAllFormations(): Promise<Formation[]> {
+  try {
+    const { data, error } = await supabase.from("formations").select("*").order("category").order("slug");
+    if (error) throw error;
+    if (data && data.length > 0) return data.map(mapDbFormation);
+  } catch (err) {
+    console.warn(`Supabase getAllFormations failed: ${(err as Error).message}. Falling back to local data.`);
+  }
+  return formations;
+}
+
+export async function getFormationBySlug(slug: string): Promise<Formation | undefined> {
+  try {
+    const { data, error } = await supabase.from("formations").select("*").eq("slug", slug).maybeSingle();
+    if (error) throw error;
+    if (data) return mapDbFormation(data);
+  } catch (err) {
+    console.warn(`Supabase getFormationBySlug failed: ${(err as Error).message}. Falling back to local data.`);
+  }
   return formations.find((f) => f.slug === slug);
 }
 
-export function getFeaturedFormations(): Formation[] {
+export async function getFeaturedFormations(): Promise<Formation[]> {
+  try {
+    const { data, error } = await supabase.from("formations").select("*").eq("featured", true);
+    if (error) throw error;
+    if (data && data.length > 0) return data.map(mapDbFormation);
+  } catch (err) {
+    console.warn(`Supabase getFeaturedFormations failed: ${(err as Error).message}. Falling back to local data.`);
+  }
   return formations.filter((f) => f.featured);
 }
 
-export function getAllFormationSlugs(): string[] {
+export async function getAllFormationSlugs(): Promise<string[]> {
+  try {
+    const { data, error } = await supabase.from("formations").select("slug");
+    if (error) throw error;
+    if (data && data.length > 0) return data.map((row) => row.slug);
+  } catch (err) {
+    console.warn(`Supabase getAllFormationSlugs failed: ${(err as Error).message}. Falling back to local data.`);
+  }
   return formations.map((f) => f.slug);
 }
 
 /** Suggère d'autres formations (hors slug courant). */
-export function getRelatedFormations(slug: string, count = 3): Formation[] {
+export async function getRelatedFormations(slug: string, count = 3): Promise<Formation[]> {
+  try {
+    const { data, error } = await supabase.from("formations").select("*").neq("slug", slug).limit(count);
+    if (error) throw error;
+    if (data && data.length > 0) return data.map(mapDbFormation);
+  } catch (err) {
+    console.warn(`Supabase getRelatedFormations failed: ${(err as Error).message}. Falling back to local data.`);
+  }
   return formations.filter((f) => f.slug !== slug).slice(0, count);
 }

@@ -21,7 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.8,
   }));
 
-  const formationRoutes = getAllFormationSlugs().map((slug) => ({
+  const formationSlugs = await getAllFormationSlugs();
+  const formationRoutes = formationSlugs.map((slug) => ({
     url: `${site.url}/formations/${slug}`,
     changeFrequency: "monthly" as const,
     priority: 0.7,

@@ -10,7 +10,7 @@ import CTASection from "@/components/sections/CTASection";
 import FormationsFilterGrid from "@/components/sections/FormationsFilterGrid";
 import CTAButton from "@/components/ui/CTAButton";
 import Container from "@/components/layout/Container";
-import { formations } from "@/data/formations";
+import { getAllFormations } from "@/data/formations";
 import { generalFaq } from "@/data/faq";
 import JsonLd from "@/components/ui/JsonLd";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
@@ -66,7 +66,9 @@ const chooseSteps: Step[] = [
 
 const financingOptions = ["CPF", "France Travail", "AFDAS", "OPCO", "Financement personnel"];
 
-export default function FormationsPage() {
+export default async function FormationsPage() {
+  const formations = await getAllFormations();
+
   return (
     <>
       <JsonLd

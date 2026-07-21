@@ -48,8 +48,8 @@ const methodSteps: Step[] = [
   { title: "Progresser", description: "Des débriefings personnalisés pour ancrer chaque acquis." },
 ];
 
-export default function HomePage() {
-  const featured = getFeaturedFormations();
+export default async function HomePage() {
+  const featured = await getFeaturedFormations();
 
   return (
     <>

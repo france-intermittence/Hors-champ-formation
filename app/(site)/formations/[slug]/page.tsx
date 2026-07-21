@@ -38,15 +38,16 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return getAllFormationSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getAllFormationSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const formation = getFormationBySlug(slug);
+  const formation = await getFormationBySlug(slug);
   if (!formation) return {};
 
   return buildMetadata({
@@ -92,12 +93,12 @@ function DetailBlock({
 
 export default async function FormationDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const formation = getFormationBySlug(slug);
+  const formation = await getFormationBySlug(slug);
   if (!formation) notFound();
 
   const testimonial =
     testimonials.find((t) => t.formation === formation.title) ?? testimonials[0];
-  const related = getRelatedFormations(formation.slug, 3);
+  const related = await getRelatedFormations(formation.slug, 3);
 
   const practical = [
     { icon: CalendarClock, label: "Rythme", value: formation.rhythm },
@@ -166,7 +167,7 @@ export default async function FormationDetailPage({ params }: PageProps) {
               <div
                 className="film-grain viewfinder relative aspect-[16/10] overflow-hidden border border-line bg-ghost/20"
                 role="img"
-                aria-label={`${formation.category} — ${formation.location}`}
+                aria-label={formation.imageAlt || `${formation.category} — ${formation.location}`}
               >
                 <Image
                   src={formation.image}

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { mapDbPost } from "@/data/posts";
+import { getAllFormations } from "@/data/formations";
 import BlogPostForm from "@/components/admin/BlogPostForm";
 
 interface PageProps {
@@ -9,7 +10,10 @@ interface PageProps {
 
 export default async function EditBlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const { data } = await supabaseAdmin.from("posts").select("*").eq("slug", slug).maybeSingle();
+  const [{ data }, formations] = await Promise.all([
+    supabaseAdmin.from("posts").select("*").eq("slug", slug).maybeSingle(),
+    getAllFormations(),
+  ]);
 
   if (!data) notFound();
 
@@ -18,7 +22,7 @@ export default async function EditBlogPostPage({ params }: PageProps) {
       <p className="font-condensed text-xs font-semibold uppercase tracking-wide2 text-muted">Blog</p>
       <h1 className="font-display text-3xl uppercase text-ink">Modifier l&apos;article</h1>
       <div className="mt-8 max-w-3xl">
-        <BlogPostForm mode="edit" initialPost={mapDbPost(data)} />
+        <BlogPostForm mode="edit" initialPost={mapDbPost(data)} formations={formations} />
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const related = await getRelatedPosts(post.slug, 3);
   const recommendedFormation = post.relatedFormationSlug
-    ? getFormationBySlug(post.relatedFormationSlug)
+    ? await getFormationBySlug(post.relatedFormationSlug)
     : undefined;
 
   return (

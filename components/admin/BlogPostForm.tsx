@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formations } from "@/data/formations";
 import { blogCategories } from "@/data/posts";
 import { slugify } from "@/lib/utils";
 import CoverImageDropzone from "@/components/admin/CoverImageDropzone";
@@ -13,6 +12,7 @@ import type { Post } from "@/types";
 interface BlogPostFormProps {
   mode: "create" | "edit";
   initialPost?: Post;
+  formations: { slug: string; title: string }[];
 }
 
 const fieldClass =
@@ -38,7 +38,7 @@ function emptyPost(): Post {
   };
 }
 
-export default function BlogPostForm({ mode, initialPost }: BlogPostFormProps) {
+export default function BlogPostForm({ mode, initialPost, formations }: BlogPostFormProps) {
   const router = useRouter();
   const [post, setPost] = useState<Post>(initialPost ?? emptyPost());
   const [slugTouched, setSlugTouched] = useState(mode === "edit");

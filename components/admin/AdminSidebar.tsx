@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Newspaper } from "lucide-react";
+import { LayoutDashboard, Users, Newspaper, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LogoutButton from "@/components/admin/LogoutButton";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/leads", label: "Leads", icon: Users },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
+  { href: "/admin/formations", label: "Formations", icon: GraduationCap },
 ];
 
 export default function AdminSidebar({ newLeadsCount }: AdminSidebarProps) {

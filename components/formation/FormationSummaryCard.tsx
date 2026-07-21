@@ -43,10 +43,24 @@ export default function FormationSummaryCard({
         <CTAButton href="/financement" fullWidth>
           S&apos;inscrire
         </CTAButton>
-        <CTAButton href="/contact" variant="secondary" fullWidth arrow={false}>
-          <Download className="mr-2 h-4 w-4" aria-hidden />
-          Télécharger le programme
-        </CTAButton>
+        {formation.programPdfUrl ? (
+          <CTAButton
+            href={formation.programPdfUrl}
+            variant="secondary"
+            fullWidth
+            arrow={false}
+            target="_blank"
+            dataTrack="formation-program-download"
+          >
+            <Download className="mr-2 h-4 w-4" aria-hidden />
+            Télécharger le programme
+          </CTAButton>
+        ) : (
+          <CTAButton href="/contact" variant="secondary" fullWidth arrow={false}>
+            <Download className="mr-2 h-4 w-4" aria-hidden />
+            Télécharger le programme
+          </CTAButton>
+        )}
       </div>
     </div>
   );
